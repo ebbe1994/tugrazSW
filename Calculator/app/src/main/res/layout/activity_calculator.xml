@@ -184,7 +184,7 @@
         android:layout_alignStart="@+id/button23" />
 
     <Button
-        android:text="/"
+        android:text="Div"
         android:layout_width="80dip"
         android:layout_height="80dip"
         android:id="@+id/Button_ID_Div"

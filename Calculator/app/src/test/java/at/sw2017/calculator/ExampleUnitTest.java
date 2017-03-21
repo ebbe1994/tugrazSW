@@ -15,21 +15,4 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
     }
-
-    @Test
-    public void testInputField(){
-        for(int i = 9; i >=0; i--)
-        {
-            onView(withText(Integer.toString(i))).perform(click());
-        }
-        onView(withText("9876543210").check(matches(isDisplay()));
-    }
-
-    private void isDisplay() {
-    }
-
-    private void withText(String s) {
-    }
-
-    
 }

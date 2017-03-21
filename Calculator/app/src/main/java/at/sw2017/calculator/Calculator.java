@@ -1,6 +1,7 @@
 package at.sw2017.calculator;
 
 import android.app.Activity;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -14,9 +15,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
 
+import static android.graphics.PorterDuff.Mode.ADD;
+import static android.icu.lang.UCharacter.DecompositionType.SUB;
+
 public class Calculator extends Activity implements View.OnClickListener {
+    public enum State {
+        ADD, SUB, MUL, DIV, INIT, NUM
+    }
     ArrayList<Button> numberButtons;
     TextView numberView;
+    int firstNr = 0;
+    State state = State.INIT;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -28,21 +37,24 @@ public class Calculator extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         numberButtons = new ArrayList<Button>();
+
         numberView = (TextView) findViewById(R.id.textView);
-        Button buttonAdd = (Button) findViewById(R.id.buttonAdd());
+
+        Button buttonAdd = (Button) findViewById(R.id.Button_ID_Plus);
         buttonAdd.setOnClickListener(this);
-        Button buttonSub = (Button) findViewById(R.id.buttonSub());
+        Button buttonSub = (Button) findViewById(R.id.Button_ID_Minus);
         buttonSub.setOnClickListener(this);
-        Button buttonDiv = (Button) findViewById(R.id.buttonDiv());
+        Button buttonMul = (Button)findViewById(R.id.Button_ID_Mal);
+        buttonMul.setOnClickListener(this);
+        Button buttonDiv = (Button) findViewById(R.id.Button_ID_Div);
         buttonDiv.setOnClickListener(this);
-        Button buttonEqual = (Button) findViewById(R.id.buttonEqual());
+        Button buttonEqual = (Button) findViewById(R.id.Button_ID_Gleich);
         buttonEqual.setOnClickListener(this);
-        Button buttonClear = (Button) findViewById(R.id.buttonClear());
+        Button buttonClear = (Button) findViewById(R.id.Button_ID_C);
         buttonClear.setOnClickListener(this);
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        numberView = (TextView)findViewById(R.id.textView);
+
     }
 
     public void setUpNumberButtonListener() {
@@ -58,23 +70,10 @@ public class Calculator extends Activity implements View.OnClickListener {
             numberButtons.add(button);
         }
 
-
         setContentView(R.layout.activity_calculator);
 
     }
 
-
-    @Override
-    public void onClick(View v) {
-        Button clickedButton = (Button) v;
-
-        switch  (clickedButton.getId()){
-            case R.id.buttonAdd:
-                break;
-            case R.id.butt
-        }
-
-    }
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -93,23 +92,86 @@ public class Calculator extends Activity implements View.OnClickListener {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onClick(View v) {
+        Button clickButton = (Button) v;
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+        switch (clickButton.getId()) {
+            case R.id.Button_ID_Plus:
+                clearNumberView();
+                state = State.ADD;
+                break;
+            case R.id.Button_ID_Minus:
+                clearNumberView();
+                state = State.SUB;
+                break;
+            case R.id.Button_ID_Mal:
+                clearNumberView();
+                state = State.MUL;
+                break;
+            case R.id.Button_ID_Div:
+                clearNumberView();
+                state = State.DIV;
+                break;
+            case R.id.Button_ID_Gleich:
+                calculateResult();
+                state = State.INIT;
+                break;
+            case R.id.Button_ID_C:
+                numberView.setText("0");
+                firstNr = 0;
+                state = State.INIT;
+                break;
+            default:
+                String recentNumber = numberView.getText().toString();
+                if (state == State.INIT) {
+                    recentNumber = "";
+                    state = State.NUM;
+                }
+                recentNumber += clickButton.getText().toString();
+                numberView.setText(recentNumber);
+        }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
+    public void clearNumberView() {
+        String tempString = numberView.getText().toString();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-        client.disconnect();
+        if (!tempString.equals("")) {
+            firstNr = Integer.valueOf(tempString);
+        }
+
+        numberView.setText("");
+    }
+
+    private void calculateResult() {
+        int secondNumber = 0;
+
+        String tempString = numberView.getText().toString();
+
+        if (!tempString.equals("")) {
+            secondNumber = Integer.valueOf(tempString);
+        }
+
+        int result;
+
+
+        switch (state) {
+            case ADD:
+                result = Calc.doAdd(firstNr, secondNumber);
+                break;
+            case SUB:
+                result = Calc.doSub(firstNr, secondNumber);
+                break;
+            case MUL:
+                result = Calc.doMult(firstNr, secondNumber);
+                break;
+            case DIV:
+                result = Calc.doDiv(firstNr, secondNumber);
+                break;
+            default:
+                result = secondNumber;
+        }
+
+        numberView.setText(Integer.toString(result));
     }
 }
 
